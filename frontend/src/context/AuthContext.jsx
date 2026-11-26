@@ -38,11 +38,6 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  async function forgotPassword(email) {
-    const response = await api.post("/auth/forgot-password", { email });
-    return response.data;
-  }
-
   async function resetPassword(token, password) {
     const response = await api.post("/auth/reset-password", { token, password });
     return response.data;
@@ -50,7 +45,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, checkingLogin, login, signup, loginWithGoogle, logout, forgotPassword, resetPassword }}
+      value={{ user, setUser, checkingLogin, login, signup, loginWithGoogle, logout, resetPassword }}
     >
       {children}
     </AuthContext.Provider>

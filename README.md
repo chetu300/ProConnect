@@ -18,7 +18,7 @@
 
 ProConnect is a full-stack MERN application that combines a professional profile and social feed with networking, messaging, and project collaboration. The frontend is a React single-page app; the backend exposes a versioned Express API backed by MongoDB and Mongoose.
 
-- **Authentication:** email/password signup and login, Google Sign-In, JWT sessions in an HttpOnly cookie, logout, and email password-reset flow.
+- **Authentication:** email/password signup and login, Google Sign-In, JWT sessions in an HttpOnly cookie, and logout. The login page does not currently offer a password-reset link.
 - **Professional profiles:** editable headline, bio, skills, experience, education, and projects; profile and banner image uploads; client-generated PDF resume.
 - **Network:** suggested people, connection requests, and accept/reject flows.
 - **Social feed:** paginated posts with text and optional Cloudinary-hosted images, likes, and comments.

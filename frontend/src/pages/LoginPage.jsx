@@ -5,13 +5,9 @@ import logo from "../assets/logo.svg";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function LoginPage() {
-  const { user, login, loginWithGoogle, forgotPassword } = useAuth();
+  const { user, login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetMessage, setResetMessage] = useState("");
-  const [resetError, setResetError] = useState("");
-  const [isSendingReset, setIsSendingReset] = useState(false);
 
   if (user) return <Navigate to="/" replace />;
 
@@ -37,23 +33,6 @@ export default function LoginPage() {
     }
   }
 
-  async function handleForgotPassword(event) {
-    event.preventDefault();
-    setResetError("");
-    setResetMessage("");
-    setIsSendingReset(true);
-    const formData = new FormData(event.currentTarget);
-
-    try {
-      const response = await forgotPassword(formData.get("resetEmail"));
-      setResetMessage(response.message);
-    } catch (error) {
-      setResetError(error.response?.data?.message || "Could not send reset link");
-    } finally {
-      setIsSendingReset(false);
-    }
-  }
-
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <section className="card w-full max-w-md p-8">
@@ -66,52 +45,10 @@ export default function LoginPage() {
           <input className="input input-bordered auth-input w-full" name="email" type="email" placeholder="Email" required />
           <div>
             <input className="input input-bordered auth-input w-full" name="password" type="password" placeholder="Password" required />
-            <div className="mt-1 flex justify-end">
-            <button
-              type="button"
-              className="link link-primary text-xs"
-              onClick={() => {
-                setResetMessage("");
-                setResetError("");
-                setShowForgotPassword(true);
-              }}
-            >
-              Forgot password?
-            </button>
-            </div>
           </div>
           {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
           <button className="btn btn-primary w-full" type="submit">Login</button>
         </form>
-        {showForgotPassword && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4">
-          <div className="card w-full max-w-sm p-6">
-            <h2 className="text-xl font-bold text-ink-primary">Forgot password</h2>
-            <p className="mt-1 text-sm text-ink-secondary">Enter your email and we’ll send you a reset link.</p>
-              <form onSubmit={handleForgotPassword} className="mt-5 flex flex-col gap-4">
-                <input
-                  className="input input-bordered auth-input w-full"
-                  name="resetEmail"
-                  type="email"
-                  placeholder="Email"
-                  required
-                />
-                {resetMessage && <p className="text-sm text-brand-indigo">{resetMessage}</p>}
-                {resetError && <p className="text-sm text-red-600">{resetError}</p>}
-                <button className="btn btn-primary w-full" type="submit" disabled={isSendingReset}>
-                  {isSendingReset ? "Sending..." : "Send reset link"}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline w-full"
-                  onClick={() => setShowForgotPassword(false)}
-                >
-                  Back to login
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
         <div className="my-5 flex justify-center">
           {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
             <GoogleLogin onSuccess={handleGoogleLogin} onError={() => setErrorMessage("Google login failed")} />
