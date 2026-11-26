@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [resetError, setResetError] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   if (user) return <Navigate to="/" replace />;
 
@@ -40,6 +41,7 @@ export default function LoginPage() {
     event.preventDefault();
     setResetError("");
     setResetMessage("");
+    setIsSendingReset(true);
     const formData = new FormData(event.currentTarget);
 
     try {
@@ -47,6 +49,8 @@ export default function LoginPage() {
       setResetMessage(response.message);
     } catch (error) {
       setResetError(error.response?.data?.message || "Could not send reset link");
+    } finally {
+      setIsSendingReset(false);
     }
   }
 
@@ -94,7 +98,9 @@ export default function LoginPage() {
                 />
                 {resetMessage && <p className="text-sm text-brand-indigo">{resetMessage}</p>}
                 {resetError && <p className="text-sm text-red-600">{resetError}</p>}
-                <button className="btn btn-primary w-full" type="submit">Send reset link</button>
+                <button className="btn btn-primary w-full" type="submit" disabled={isSendingReset}>
+                  {isSendingReset ? "Sending..." : "Send reset link"}
+                </button>
                 <button
                   type="button"
                   className="btn btn-outline w-full"
