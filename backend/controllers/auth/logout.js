@@ -1,9 +1,7 @@
+import { getAuthCookieOptions } from "../../utils/generateToken.js";
+
 export function logout(req, res) {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
+  res.clearCookie("token", getAuthCookieOptions());
 
   return res.json({
     message: "Logged out successfully",

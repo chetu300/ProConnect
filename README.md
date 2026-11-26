@@ -4,6 +4,8 @@
 
 **A professional networking app for sharing updates, building your profile, and finding collaborators.**
 
+**Developer:** Chetna Singh
+
 [![React](https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.4-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.11-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
@@ -221,9 +223,40 @@ Vite prints the local URL when it starts. The backend health endpoint is `http:/
 
 **Docker:** No Dockerfile or Docker Compose configuration is included in the repository.
 
-## 9. Security & Performance Highlights
+## 9. Deploy to Vercel & Render
 
-- Passwords are hashed with `bcryptjs` using 10 salt rounds. JWTs are stored in an HttpOnly cookie with a seven-day expiry, `SameSite=Lax`, and the `Secure` flag in production.
+The repository includes a Render Blueprint for the API and a Vercel SPA rewrite for the React client. Deploy the frontend once first to obtain its URL; finish the Vercel environment configuration after Render provides the API URL.
+
+### Create the frontend project on Vercel
+
+1. Import this GitHub repository into Vercel and set **Root Directory** to `frontend`.
+2. Use the Vite defaults: build command `npm run build` and output directory `dist`. `frontend/vercel.json` routes client-side pages to the SPA entry point.
+3. Deploy once to obtain the production frontend URL. API-dependent features will work after the backend and environment variables are configured.
+
+### Deploy the backend to Render
+
+1. Import this GitHub repository into Render as a Blueprint and select the root `render.yaml`.
+2. Provide `MONGO_URI` and set `CLIENT_URL` to the Vercel production origin. Render generates `JWT_SECRET`; the service uses `backend/`, runs `npm ci` and `npm start`, and checks `/api/v1/health`.
+3. After deployment, note the Render service URL, for example `https://proconnect-api.onrender.com`.
+4. Add optional backend variables in Render for Google Sign-In (`GOOGLE_CLIENT_ID`), Cloudinary image uploads, and SMTP email delivery.
+
+### Connect the frontend and API
+
+Set these Vercel environment variables for Production:
+
+| Variable | Value |
+| --- | --- |
+| `VITE_API_URL` | `https://<render-service>.onrender.com/api/v1` |
+| `VITE_SOCKET_URL` | `https://<render-service>.onrender.com` |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID (optional; match the backend `GOOGLE_CLIENT_ID`) |
+
+Redeploy the frontend after setting variables. Add the Vercel origin to Google OAuth's authorized JavaScript origins if Google Sign-In is enabled.
+
+The backend sets production cookies to `Secure` and `SameSite=None` so credentialed API and Socket.IO requests can work across the Vercel and Render origins. Browsers that block third-party cookies can still prevent sign-in on provider subdomains; custom frontend/API domains under the same registrable domain are recommended for reliable cookie behavior. Keep `CLIENT_URL` set to the exact frontend origin, and configure MongoDB Atlas network access for the Render service.
+
+## 10. Security & Performance Highlights
+
+- Passwords are hashed with `bcryptjs` using 10 salt rounds. JWTs are stored in an HttpOnly cookie with a seven-day expiry; cookies are `Secure` in production and use `SameSite=None` for the cross-origin Vercel/Render deployment.
 - Protected REST routes and Socket.IO connections verify the session JWT. Profile and auth responses exclude the password field.
 - Google ID tokens are verified server-side against the configured client ID.
 - Password-reset tokens are generated with cryptographic randomness, stored as SHA-256 hashes, and expire after one hour. The forgot-password response avoids disclosing whether an account exists.

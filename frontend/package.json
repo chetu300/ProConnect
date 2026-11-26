@@ -1,6 +1,7 @@
 {
   "name": "proconnect-frontend",
   "version": "1.0.0",
+  "author": "Chetna Singh",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,6 +1,7 @@
 {
   "name": "proconnect-backend",
   "version": "1.0.0",
+  "author": "Chetna Singh",
   "private": true,
   "type": "module",
   "main": "server.js",
