@@ -5,12 +5,13 @@ import { logout } from "../controllers/auth/logout.js";
 import { getMe } from "../controllers/auth/getMe.js";
 import { googleLogin } from "../controllers/auth/googleLogin.js";
 import { protectRoute } from "../middleware/protectRoute.js";
+import { authLimiter } from "../middleware/rateLimiters.js";
 
 const router = express.Router();
 
-router.post("/signup", signup);
-router.post("/login", login);
-router.post("/google", googleLogin);
+router.post("/signup", authLimiter, signup);
+router.post("/login", authLimiter, login);
+router.post("/google", authLimiter, googleLogin);
 router.post("/logout", logout);
 router.get("/me", protectRoute, getMe);
 

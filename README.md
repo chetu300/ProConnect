@@ -255,9 +255,10 @@ Render's free web services spin down after 15 minutes without traffic and can ta
 - Protected REST routes and Socket.IO connections verify the session JWT. Profile and auth responses exclude the password field.
 - Google ID tokens are verified server-side against the configured client ID.
 - CORS is restricted to the configured client origin, allows credentials, and permits localhost origins during development. JSON request bodies are limited to 5 MB.
+- API requests are limited to 300 per IP every 15 minutes; signup, login, and Google sign-in share a stricter limit of 10 unsuccessful attempts per IP in the same window. Rate-limit responses use HTTP 429 and include standard `RateLimit` headers.
 - Cloudinary handles image storage; JWT secrets remain server-side.
 - MongoDB indexes support connection lookups (including a unique sender/receiver pair) and message conversation/read-state queries.
-- **Production hardening:** the current code does not configure Helmet or rate limiting. Add and configure those protections as part of a production deployment review.
+- **Production hardening:** Helmet is not configured; review additional security headers as part of a production deployment review.
 
 ## License
 

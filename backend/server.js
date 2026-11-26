@@ -12,6 +12,7 @@ import connectionRoutes from "./routes/connectionRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import teamProjectRoutes from "./routes/teamProjectRoutes.js";
+import { apiLimiter } from "./middleware/rateLimiters.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -20,6 +21,7 @@ const configuredClientOrigin = new URL(
   process.env.CLIENT_URL || "http://localhost:5173"
 ).origin;
 
+app.set("trust proxy", process.env.NODE_ENV === "production" ? 1 : false);
 app.set("io", io);
 app.use(
   cors({
@@ -47,6 +49,7 @@ app.use(
     credentials: true,
   })
 );
+app.use("/api/v1", apiLimiter);
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
