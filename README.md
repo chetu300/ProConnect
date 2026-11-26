@@ -1,8 +1,10 @@
 # ProConnect
 
-## 1. Project Title, Tagline & Stack
+## 1. About ProConnect
 
-**A professional networking app for sharing updates, building your profile, and finding collaborators.**
+ProConnect is a professional networking platform where people can showcase their experience, build meaningful connections, share industry updates, and collaborate on projects. With professional profiles, a social feed, real-time messaging, and a dedicated collaboration space, it brings networking and teamwork together in one place.
+
+**Connect professionally. Share knowledge. Build together.**
 
 **Developer:** Chetna Singh
 
