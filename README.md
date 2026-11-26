@@ -236,7 +236,7 @@ The repository includes a Render Blueprint for the API and a Vercel SPA rewrite 
 ### Deploy the backend to Render
 
 1. Import this GitHub repository into Render as a Blueprint and select the root `render.yaml`.
-2. Provide `MONGO_URI` and set `CLIENT_URL` to the Vercel production origin. Render generates `JWT_SECRET`; the service uses `backend/`, runs `npm ci` and `npm start`, and checks `/api/v1/health`.
+2. Provide `MONGO_URI` and set `CLIENT_URL` to the Vercel production origin. The Blueprint selects Render's free web-service plan and generates `JWT_SECRET`; the service uses `backend/`, runs `npm ci` and `npm start`, and checks `/api/v1/health`.
 3. After deployment, note the Render service URL, for example `https://proconnect-api.onrender.com`.
 4. Add optional backend variables in Render for Google Sign-In (`GOOGLE_CLIENT_ID`), Cloudinary image uploads, and SMTP email delivery.
 
@@ -253,6 +253,8 @@ Set these Vercel environment variables for Production:
 Redeploy the frontend after setting variables. Add the Vercel origin to Google OAuth's authorized JavaScript origins if Google Sign-In is enabled.
 
 The backend sets production cookies to `Secure` and `SameSite=None` so credentialed API and Socket.IO requests can work across the Vercel and Render origins. Browsers that block third-party cookies can still prevent sign-in on provider subdomains; custom frontend/API domains under the same registrable domain are recommended for reliable cookie behavior. Keep `CLIENT_URL` set to the exact frontend origin, and configure MongoDB Atlas network access for the Render service.
+
+Render's free web services spin down after 15 minutes without traffic and can take about a minute to wake up. This free-tier setup is suitable for a demo, not production workloads.
 
 ## 10. Security & Performance Highlights
 
