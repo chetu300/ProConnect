@@ -6,6 +6,10 @@
 
 **Developer:** Chetna Singh
 
+**Live app:** [ProConnect](https://proconnect-livid.vercel.app/login)
+
+**Source code:** [GitHub repository](https://github.com/chetu300/ProConnect)
+
 [![React](https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.4-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.11-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
@@ -23,7 +27,7 @@ ProConnect is a full-stack MERN application that combines a professional profile
 - **Network:** suggested people, connection requests, and accept/reject flows.
 - **Social feed:** paginated posts with text and optional Cloudinary-hosted images, likes, and comments.
 - **Messaging:** REST message history and delivery, with Socket.IO events for new messages; messaging is limited to accepted connections.
-- **Notifications:** persisted notifications for connection activity, likes, comments, and messages, with real-time delivery.
+- **Notifications:** persisted notifications for connection activity, likes, comments, and messages, with real-time delivery and navigation dots for new messages and notifications.
 - **Build With Me:** create collaboration projects, request to join, review requests, and update project status.
 - **Email:** Nodemailer SMTP integration for welcome and password-reset emails.
 

@@ -3,9 +3,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, Code2, Home, LogOut, MessageCircle, UserRound, UsersRound } from "lucide-react";
 import logo from "../../assets/logo.svg";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useSocketNotifications } from "../../context/SocketContext.jsx";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { hasNewMessage, hasNewNotification } = useSocketNotifications();
   const navigate = useNavigate();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef(null);
@@ -47,24 +49,41 @@ export default function Navbar() {
   }, [accountMenuOpen]);
 
   function renderLinks(compact = false) {
-    return links.map(({ to, label, icon: Icon, end }) => (
-      <NavLink
-        key={to}
-        to={to}
-        end={end}
-        aria-label={label}
-        className={({ isActive }) =>
-          `flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition ${
-            isActive
-              ? "bg-brand-indigo/10 text-brand-indigo"
-              : "text-ink-secondary hover:bg-surface-bg hover:text-ink-primary"
-          }`
-        }
-      >
-        <Icon size={18} />
-        <span className={compact ? "hidden sm:inline" : ""}>{label}</span>
-      </NavLink>
-    ));
+    return links.map(({ to, label, icon: Icon, end }) => {
+      const hasNewActivity =
+        (to === "/messages" && hasNewMessage) ||
+        (to === "/notifications" && hasNewNotification);
+      const accessibleLabel = hasNewActivity
+        ? `${label}, new ${to === "/messages" ? "message" : "notification"}`
+        : label;
+
+      return (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          aria-label={accessibleLabel}
+          className={({ isActive }) =>
+            `flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition ${
+              isActive
+                ? "bg-brand-indigo/10 text-brand-indigo"
+                : "text-ink-secondary hover:bg-surface-bg hover:text-ink-primary"
+            }`
+          }
+        >
+          <span className="relative inline-flex">
+            <Icon size={18} />
+            {hasNewActivity && (
+              <span
+                className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500"
+                aria-hidden="true"
+              />
+            )}
+          </span>
+          <span className={compact ? "hidden sm:inline" : ""}>{label}</span>
+        </NavLink>
+      );
+    });
   }
 
   return (

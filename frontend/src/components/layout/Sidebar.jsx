@@ -1,9 +1,11 @@
 import { Link, NavLink } from "react-router-dom";
 import { Bell, Code2, Home, MessageCircle, UserRound, Users } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useSocketNotifications } from "../../context/SocketContext.jsx";
 
 export default function Sidebar() {
   const { user } = useAuth();
+  const { hasNewMessage, hasNewNotification } = useSocketNotifications();
   const navigationLinks = [
     { to: "/", label: "Home", icon: Home, end: true },
     { to: "/network", label: "My Network", icon: Users },
@@ -42,23 +44,41 @@ export default function Sidebar() {
           Your workspace
         </p>
         <nav className="flex flex-col gap-1">
-          {navigationLinks.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-brand-indigo/10 text-brand-indigo"
-                    : "text-ink-secondary hover:bg-surface-bg hover:text-ink-primary"
-                }`
-              }
-            >
-              <Icon size={18} />
-              {label}
-            </NavLink>
-          ))}
+          {navigationLinks.map(({ to, label, icon: Icon, end }) => {
+            const hasNewActivity =
+              (to === "/messages" && hasNewMessage) ||
+              (to === "/notifications" && hasNewNotification);
+            const accessibleLabel = hasNewActivity
+              ? `${label}, new ${to === "/messages" ? "message" : "notification"}`
+              : label;
+
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                aria-label={accessibleLabel}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-brand-indigo/10 text-brand-indigo"
+                      : "text-ink-secondary hover:bg-surface-bg hover:text-ink-primary"
+                  }`
+                }
+              >
+                <span className="relative inline-flex">
+                  <Icon size={18} />
+                  {hasNewActivity && (
+                    <span
+                      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500"
+                      aria-hidden="true"
+                    />
+                  )}
+                </span>
+                {label}
+              </NavLink>
+            );
+          })}
           <NavLink
             to={`/profile/${user?.username}`}
             className={({ isActive }) =>
