@@ -1,8 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../../models/User.js";
-import { sendEmail } from "../../config/mailer.js";
 import { setAuthCookie } from "../../utils/generateToken.js";
-import { welcomeEmail } from "../../utils/emailTemplates.js";
 
 export async function signup(req, res) {
   try {
@@ -39,17 +37,6 @@ export async function signup(req, res) {
     });
 
     setAuthCookie(res, user._id);
-
-    try {
-      const emailContent = welcomeEmail(user.name);
-      await sendEmail({
-        to: user.email,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      });
-    } catch (emailError) {
-      console.log("Welcome email failed:", emailError.message);
-    }
 
     const safeUser = await User.findById(user._id).select(
       "-password"

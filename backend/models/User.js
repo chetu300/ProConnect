@@ -57,14 +57,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
-    resetPasswordToken: {
-      type: String,
-      select: false,
-    },
-    resetPasswordExpires: {
-      type: Date,
-      select: false,
-    },
     headline: { type: String, default: "", trim: true },
     about: { type: String, default: "", trim: true },
     skills: [{ type: String, trim: true }],

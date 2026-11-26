@@ -10,7 +10,6 @@ import NetworkPage from "./pages/NetworkPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
-import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import BuildWithMePage from "./pages/BuildWithMePage.jsx";
 
 export default function App() {
@@ -21,7 +20,6 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
                 <Route index element={<HomePage />} />

@@ -24,14 +24,13 @@ ProConnect is a professional networking platform where people can showcase their
 
 ProConnect is a full-stack MERN application that combines a professional profile and social feed with networking, messaging, and project collaboration. The frontend is a React single-page app; the backend exposes a versioned Express API backed by MongoDB and Mongoose.
 
-- **Authentication:** email/password signup and login, Google Sign-In, JWT sessions in an HttpOnly cookie, and logout. The login page does not currently offer a password-reset link.
+- **Authentication:** email/password signup and login, Google Sign-In, JWT sessions in an HttpOnly cookie, and logout.
 - **Professional profiles:** editable headline, bio, skills, experience, education, and projects; profile and banner image uploads; client-generated PDF resume.
 - **Network:** suggested people, connection requests, and accept/reject flows.
 - **Social feed:** paginated posts with text and optional Cloudinary-hosted images, likes, and comments.
 - **Messaging:** REST message history and delivery, with Socket.IO events for new messages; messaging is limited to accepted connections.
 - **Notifications:** persisted notifications for connection activity, likes, comments, and messages, with real-time delivery and navigation dots for new messages and notifications.
 - **Build With Me:** create collaboration projects, request to join, review requests, and update project status.
-- **Email:** Nodemailer SMTP integration for welcome and password-reset emails.
 
 ## 3. System Architecture
 
@@ -42,15 +41,12 @@ flowchart LR
     DB[("MongoDB<br/>Mongoose models")]
     Google["Google Identity"]
     Cloudinary["Cloudinary"]
-    SMTP["SMTP provider"]
-
     Browser -->|"REST / JSON<br/>HttpOnly JWT cookie"| API
     Browser <-->|"Socket.IO<br/>cookie-authenticated events"| API
     API <-->|"Mongoose queries"| DB
     Browser -->|"Google ID credential"| API
     API -->|"Verify ID token"| Google
     API -->|"Upload profile, banner,<br/>and post images"| Cloudinary
-    API -->|"Welcome and reset emails"| SMTP
 ```
 
 The API is mounted at `/api/v1`. The Express HTTP server and Socket.IO server share the backend process. The client sends the JWT cookie with credentialed requests; the backend validates it for protected REST routes and Socket.IO connections.
@@ -61,7 +57,7 @@ All records use MongoDB ObjectIds. The following are the Mongoose models; MongoD
 
 | Model / collection | Key fields | Relationships and notes |
 | --- | --- | --- |
-| `User` / `users` | `name`, unique `username`, unique `email`, `password`, `headline`, `about`, `skills`, `profileImage`, `bannerImage`, timestamps | `experience`, `education`, and `projects` are embedded profile subdocuments. Password-reset token and expiry fields are excluded from normal query selection. |
+| `User` / `users` | `name`, unique `username`, unique `email`, `password`, `headline`, `about`, `skills`, `profileImage`, `bannerImage`, timestamps | `experience`, `education`, and `projects` are embedded profile subdocuments. |
 | `Post` / `posts` | `text`, `image`, timestamps | `author` references `User`; `likes` is an array of `User` references; `comments` are embedded subdocuments with a `User` reference and timestamps. |
 | `Connection` / `connections` | `sender`, `receiver`, `status` (`pending`, `accepted`, `rejected`), timestamps | `sender` and `receiver` reference `User`. |
 | `Message` / `messages` | `sender`, `receiver`, `text`, `isRead`, timestamps | Both participants reference `User`. |
@@ -75,7 +71,7 @@ All records use MongoDB ObjectIds. The following are the Mongoose models; MongoD
 ```text
 ProConnect/
 ├── backend/
-│   ├── config/                 # MongoDB, Cloudinary, SMTP, Socket.IO, env loading
+│   ├── config/                 # MongoDB, Cloudinary, Socket.IO, env loading
 │   ├── controllers/
 │   │   ├── auth/
 │   │   ├── connection/
@@ -87,7 +83,7 @@ ProConnect/
 │   ├── middleware/             # JWT cookie authentication
 │   ├── models/                  # Mongoose schemas
 │   ├── routes/                  # Express route modules
-│   ├── utils/                   # JWT, email templates, notifications
+│   ├── utils/                  # JWT, notifications
 │   ├── .env.example
 │   ├── server.js
 │   └── package.json
@@ -123,8 +119,6 @@ All endpoints are prefixed with `/api/v1`. Protected endpoints require a valid J
 | `POST` | `/api/v1/auth/signup` | No | Create an account and start a session. |
 | `POST` | `/api/v1/auth/login` | No | Validate credentials and start a session. |
 | `POST` | `/api/v1/auth/google` | No | Verify a Google ID credential and start a session. |
-| `POST` | `/api/v1/auth/forgot-password` | No | Request a password-reset email. |
-| `POST` | `/api/v1/auth/reset-password` | No | Set a new password using a valid reset token. |
 | `POST` | `/api/v1/auth/logout` | No | Clear the session cookie. |
 | `GET` | `/api/v1/auth/me` | Yes | Return the authenticated user's profile. |
 | `GET` | `/api/v1/users/suggestions` | Yes | List suggested users not already connected or in a connection request. |
@@ -160,7 +154,7 @@ Copy `backend/.env.example` to `backend/.env`. The backend loads that file direc
 | `PORT` | Backend | Express/Socket.IO listening port. Defaults to `5000` in code. | `5001` |
 | `MONGO_URI` | Backend | MongoDB connection string. | `mongodb://127.0.0.1:27017/proconnect` |
 | `JWT_SECRET` | Backend | Secret used to sign and verify session JWTs. Use a long, unique random value. | `replace-with-a-long-random-secret` |
-| `CLIENT_URL` | Backend | Allowed frontend origin for CORS, Socket.IO, and reset links. | `http://localhost:5173` |
+| `CLIENT_URL` | Backend | Allowed frontend origin for CORS and Socket.IO. | `http://localhost:5173` |
 | `NODE_ENV` | Backend | Controls production cookie security and production origin handling. Not set in the example file. | `development` |
 | `GOOGLE_CLIENT_ID` | Backend | OAuth audience used to verify Google ID tokens. | `your-google-oauth-client-id.apps.googleusercontent.com` |
 | `VITE_GOOGLE_CLIENT_ID` | Frontend | Enables Google Sign-In and configures the client-side Google provider. Use the same client ID as `GOOGLE_CLIENT_ID`. | `your-google-oauth-client-id.apps.googleusercontent.com` |
@@ -169,13 +163,7 @@ Copy `backend/.env.example` to `backend/.env`. The backend loads that file direc
 | `CLOUDINARY_CLOUD_NAME` | Backend | Cloudinary cloud name for image uploads. | `your-cloud-name` |
 | `CLOUDINARY_API_KEY` | Backend | Cloudinary API key. | `your-api-key` |
 | `CLOUDINARY_API_SECRET` | Backend | Cloudinary API secret. | `your-api-secret` |
-| `SMTP_HOST` | Backend | SMTP server hostname for email delivery. | `smtp.gmail.com` |
-| `SMTP_PORT` | Backend | SMTP server port (`465` uses TLS mode). | `587` |
-| `SMTP_USER` | Backend | SMTP account username. | `your-email@example.com` |
-| `SMTP_PASS` | Backend | SMTP password or provider app password. | `your-app-password` |
-| `SMTP_FROM` | Backend | Optional sender display/address. Defaults to `ProConnect <noreply@proconnect.app>`. | `"ProConnect <noreply@example.com>"` |
-
-Google credentials are needed for Google Sign-In; Cloudinary credentials are needed for image uploads; SMTP settings are needed for password-reset email delivery. The frontend's `VITE_` values are included in the client bundle, so never put secrets in them.
+Google credentials are needed for Google Sign-In; Cloudinary credentials are needed for image uploads. The frontend's `VITE_` values are included in the client bundle, so never put secrets in them.
 
 ## 8. Local Setup & Installation
 
@@ -185,7 +173,6 @@ Google credentials are needed for Google Sign-In; Cloudinary credentials are nee
 - A MongoDB instance, local or hosted.
 - Cloudinary credentials for image uploads.
 - Google OAuth client ID for Google Sign-In (optional).
-- SMTP credentials for password-reset email delivery (optional for basic local use).
 
 ### Install and configure
 
@@ -244,7 +231,7 @@ The repository includes a Render Blueprint for the API and a Vercel SPA rewrite 
 1. Import this GitHub repository into Render as a Blueprint and select the root `render.yaml`.
 2. Provide `MONGO_URI` and set `CLIENT_URL` to the Vercel production origin. The Blueprint selects Render's free web-service plan and generates `JWT_SECRET`; the service uses `backend/`, runs `npm ci` and `npm start`, and checks `/api/v1/health`.
 3. After deployment, note the Render service URL, for example `https://proconnect-api.onrender.com`.
-4. Add optional backend variables in Render for Google Sign-In (`GOOGLE_CLIENT_ID`), Cloudinary image uploads, and SMTP email delivery.
+4. Add optional backend variables in Render for Google Sign-In (`GOOGLE_CLIENT_ID`) and Cloudinary image uploads.
 
 ### Connect the frontend and API
 
@@ -267,9 +254,8 @@ Render's free web services spin down after 15 minutes without traffic and can ta
 - Passwords are hashed with `bcryptjs` using 10 salt rounds. JWTs are stored in an HttpOnly cookie with a seven-day expiry; cookies are `Secure` in production and use `SameSite=None` for the cross-origin Vercel/Render deployment.
 - Protected REST routes and Socket.IO connections verify the session JWT. Profile and auth responses exclude the password field.
 - Google ID tokens are verified server-side against the configured client ID.
-- Password-reset tokens are generated with cryptographic randomness, stored as SHA-256 hashes, and expire after one hour. The forgot-password response avoids disclosing whether an account exists.
 - CORS is restricted to the configured client origin, allows credentials, and permits localhost origins during development. JSON request bodies are limited to 5 MB.
-- Cloudinary handles image storage; SMTP credentials and JWT secrets remain server-side.
+- Cloudinary handles image storage; JWT secrets remain server-side.
 - MongoDB indexes support connection lookups (including a unique sender/receiver pair) and message conversation/read-state queries.
 - **Production hardening:** the current code does not configure Helmet or rate limiting. Add and configure those protections as part of a production deployment review.
 
