@@ -232,11 +232,6 @@ Vite prints the local URL when it starts. The backend health endpoint is `http:/
 - MongoDB indexes support connection lookups (including a unique sender/receiver pair) and message conversation/read-state queries.
 - **Production hardening:** the current code does not configure Helmet or rate limiting. Add and configure those protections as part of a production deployment review.
 
-## 10. Demo Credentials & Live Links
-
-- **Live demo:** No hosted demo URL is configured.
-- **Test user:** No shared demo account is configured; create an account through the signup flow on a running instance.
-
 ## License
 
 This project is licensed under the [MIT License](./LICENSE).
