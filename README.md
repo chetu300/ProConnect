@@ -236,7 +236,6 @@ Vite prints the local URL when it starts. The backend health endpoint is `http:/
 
 - **Live demo:** No hosted demo URL is configured.
 - **Test user:** No shared demo account is configured; create an account through the signup flow on a running instance.
-- **Admin:** Not available in the current codebase; no admin role or seeded admin account is defined.
 
 ## License
 
