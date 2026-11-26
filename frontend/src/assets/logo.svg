@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">ProConnect logo</title>
+  <desc id="desc">Indigo and violet interlocking PC mark</desc>
+  <defs>
+    <linearGradient id="pcGradient" x1="12" y1="12" x2="84" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#9333EA"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="88" height="88" rx="24" fill="#F8FAFC"/>
+  <path d="M22 67V29h17c12 0 19 6 19 16S51 61 39 61H31v6H22Zm9-15h8c6 0 10-2 10-7s-4-7-10-7h-8v14Z" fill="url(#pcGradient)"/>
+  <path d="M52 68c-8 0-14-3-18-8l7-7c3 4 7 6 12 6 7 0 12-5 12-12 0-6-4-11-12-11-5 0-9 2-12 6l-7-6c4-6 11-10 20-10 14 0 23 9 23 21 0 13-10 21-25 21Z" fill="#9333EA"/>
+  <circle cx="73" cy="23" r="7" fill="#8B5CF6"/>
+</svg>
