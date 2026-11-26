@@ -48,7 +48,7 @@ export default function Navbar() {
     };
   }, [accountMenuOpen]);
 
-  function renderLinks(compact = false) {
+  function renderLinks(compact = false, mobile = false) {
     return links.map(({ to, label, icon: Icon, end }) => {
       const hasNewActivity =
         (to === "/messages" && hasNewMessage) ||
@@ -64,7 +64,11 @@ export default function Navbar() {
           end={end}
           aria-label={accessibleLabel}
           className={({ isActive }) =>
-            `flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition ${
+            `flex items-center justify-center rounded-full font-medium transition ${
+              mobile
+                ? "min-w-0 flex-col gap-1 px-0 py-2 text-[10px] leading-3"
+                : "gap-2 px-3 py-2 text-sm"
+            } ${
               isActive
                 ? "bg-brand-indigo/10 text-brand-indigo"
                 : "text-ink-secondary hover:bg-surface-bg hover:text-ink-primary"
@@ -80,7 +84,17 @@ export default function Navbar() {
               />
             )}
           </span>
-          <span className={compact ? "hidden sm:inline" : ""}>{label}</span>
+          <span
+            className={
+              compact
+                ? "hidden sm:inline"
+                : mobile
+                  ? "max-w-full truncate text-center"
+                  : ""
+            }
+          >
+            {label}
+          </span>
         </NavLink>
       );
     });
@@ -183,7 +197,7 @@ export default function Navbar() {
         </div>
       </div>
       <nav aria-label="Mobile navigation" className="grid grid-cols-5 border-t border-border-subtle px-2 py-1 sm:hidden">
-        {renderLinks()}
+        {renderLinks(false, true)}
       </nav>
     </header>
   );
