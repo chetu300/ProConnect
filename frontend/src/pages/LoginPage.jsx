@@ -97,7 +97,7 @@ export default function LoginPage() {
                 <button className="btn btn-primary w-full" type="submit">Send reset link</button>
                 <button
                   type="button"
-                  className="btn btn-ghost w-full"
+                  className="btn btn-outline w-full"
                   onClick={() => setShowForgotPassword(false)}
                 >
                   Back to login
