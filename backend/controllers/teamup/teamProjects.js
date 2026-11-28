@@ -140,6 +140,82 @@ export async function requestToJoinProject(req, res) {
   }
 }
 
+export async function updateTeamProject(req, res) {
+  try {
+    const { projectId } = req.params;
+    if (!mongoose.isValidObjectId(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+
+    const project = await TeamProject.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    if (!isProjectOwner(project, req.user._id)) {
+      return res.status(403).json({ message: "Only the project owner can edit this project" });
+    }
+
+    const body = req.body || {};
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    const description =
+      typeof body.description === "string" ? body.description.trim() : "";
+    const status = body.status || project.status;
+    const roles = parseList(body.rolesNeeded, "Roles needed");
+    const skills = parseList(body.skills, "Skills");
+
+    if (!title || title.length > 100) {
+      return res.status(400).json({ message: "Project title is required (100 characters max)" });
+    }
+    if (!description || description.length > 1000) {
+      return res.status(400).json({ message: "Project description is required (1000 characters max)" });
+    }
+    if (!projectStatuses.has(status)) {
+      return res.status(400).json({ message: "Choose a valid project status" });
+    }
+    if (roles.error || skills.error) {
+      return res.status(400).json({ message: roles.error || skills.error });
+    }
+
+    project.title = title;
+    project.description = description;
+    project.status = status;
+    project.rolesNeeded = roles.items;
+    project.skills = skills.items;
+    await project.save();
+
+    await project.populate("owner", "name username profileImage headline");
+    await project.populate("teamMembers", "name username profileImage headline");
+
+    return res.json(project);
+  } catch (error) {
+    console.error("Update team project failed:", error.message);
+    return res.status(500).json({ message: "Could not update project" });
+  }
+}
+
+export async function deleteTeamProject(req, res) {
+  try {
+    const { projectId } = req.params;
+    if (!mongoose.isValidObjectId(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+
+    const project = await TeamProject.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    if (!isProjectOwner(project, req.user._id)) {
+      return res.status(403).json({ message: "Only the project owner can delete this project" });
+    }
+
+    await project.deleteOne();
+    return res.json({ message: "Project deleted" });
+  } catch (error) {
+    console.error("Delete team project failed:", error.message);
+    return res.status(500).json({ message: "Could not delete project" });
+  }
+}
+
 export async function updateTeamProjectStatus(req, res) {
   try {
     const body = req.body || {};

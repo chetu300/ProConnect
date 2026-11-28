@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowUpRight, Blocks, CircleX, FolderPlus, Rocket, Sparkles, UserRoundPlus } from "lucide-react";
+import { ArrowUpRight, Blocks, CircleX, FolderPlus, Pencil, Rocket, Sparkles, Trash, UserRoundPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../lib/axios.js";
 
@@ -37,6 +37,8 @@ export default function BuildWithMePage() {
   const [form, setForm] = useState(initialForm);
   const [joiningProjectId, setJoiningProjectId] = useState("");
   const [joinMessage, setJoinMessage] = useState("");
+  const [editingProjectId, setEditingProjectId] = useState("");
+  const [editForm, setEditForm] = useState(initialForm);
 
   const projects = useQuery({
     queryKey: ["team-projects"],
@@ -70,11 +72,30 @@ export default function BuildWithMePage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["team-projects"] }),
   });
 
+  const updateProject = useMutation({
+    mutationFn: ({ projectId, project }) =>
+      api.patch(`/team-projects/${projectId}`, project),
+    onSuccess: () => {
+      setEditingProjectId("");
+      queryClient.invalidateQueries({ queryKey: ["team-projects"] });
+    },
+  });
+
+  const deleteProject = useMutation({
+    mutationFn: (projectId) => api.delete(`/team-projects/${projectId}`),
+    onSuccess: () => {
+      setEditingProjectId("");
+      queryClient.invalidateQueries({ queryKey: ["team-projects"] });
+    },
+  });
+
   const mutationError =
     createProject.error ||
     requestToJoin.error ||
     reviewRequest.error ||
-    updateStatus.error;
+    updateStatus.error ||
+    updateProject.error ||
+    deleteProject.error;
 
   function submitProject(event) {
     event.preventDefault();
@@ -96,6 +117,34 @@ export default function BuildWithMePage() {
   function submitJoinRequest(event, projectId) {
     event.preventDefault();
     requestToJoin.mutate({ projectId, message: joinMessage });
+  }
+
+  function startEditing(project) {
+    setEditingProjectId(project._id);
+    setEditForm({
+      title: project.title,
+      description: project.description,
+      rolesNeeded: (project.rolesNeeded || []).join(", "),
+      skills: (project.skills || []).join(", "),
+      status: project.status,
+    });
+  }
+
+  function submitProjectEdit(event, projectId) {
+    event.preventDefault();
+    updateProject.mutate({
+      projectId,
+      project: {
+        ...editForm,
+        rolesNeeded: splitList(editForm.rolesNeeded),
+        skills: splitList(editForm.skills),
+      },
+    });
+  }
+
+  function removeProject(project) {
+    if (!window.confirm(`Delete "${project.title}"? This cannot be undone.`)) return;
+    deleteProject.mutate(project._id);
   }
 
   return (
@@ -257,19 +306,38 @@ export default function BuildWithMePage() {
                   <h2 className="mt-1 text-lg font-bold text-ink-primary">{project.title}</h2>
                 </div>
                 {isOwner ? (
-                  <select
-                    className="select select-bordered auth-input select-sm w-32"
-                    value={project.status}
-                    onChange={(event) =>
-                      updateStatus.mutate({ projectId: project._id, status: event.target.value })
-                    }
-                    aria-label={`Update status for ${project.title}`}
-                    disabled={updateStatus.isPending}
-                  >
-                    {Object.entries(statusLabels).map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <select
+                      className="select select-bordered auth-input select-sm w-28"
+                      value={project.status}
+                      onChange={(event) =>
+                        updateStatus.mutate({ projectId: project._id, status: event.target.value })
+                      }
+                      aria-label={`Update status for ${project.title}`}
+                      disabled={updateStatus.isPending}
+                    >
+                      {Object.entries(statusLabels).map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm px-2"
+                      onClick={() => startEditing(project)}
+                      aria-label={`Edit ${project.title}`}
+                    >
+                      <Pencil size={16} className="text-brand-indigo" />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm px-2"
+                      onClick={() => removeProject(project)}
+                      aria-label={`Delete ${project.title}`}
+                      disabled={deleteProject.isPending}
+                    >
+                      <Trash size={16} className="text-rose-500" />
+                    </button>
+                  </div>
                 ) : (
                   <span className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-brand-indigo">
                     {statusLabels[project.status]}
@@ -277,11 +345,84 @@ export default function BuildWithMePage() {
                 )}
               </div>
 
-              <p className="whitespace-pre-wrap text-sm leading-6 text-ink-secondary">
-                {project.description}
-              </p>
+              {isOwner && editingProjectId === project._id ? (
+                <form
+                  onSubmit={(event) => submitProjectEdit(event, project._id)}
+                  className="grid gap-3 rounded-xl bg-surface-bg p-4"
+                >
+                  <label className="grid gap-1.5 text-sm font-medium text-ink-primary">
+                    Project name
+                    <input
+                      className="input input-bordered auth-input w-full"
+                      value={editForm.title}
+                      onChange={(event) => setEditForm({ ...editForm, title: event.target.value })}
+                      maxLength={100}
+                      required
+                    />
+                  </label>
+                  <label className="grid gap-1.5 text-sm font-medium text-ink-primary">
+                    What are you building?
+                    <textarea
+                      className="textarea textarea-bordered auth-input min-h-24 w-full"
+                      value={editForm.description}
+                      onChange={(event) => setEditForm({ ...editForm, description: event.target.value })}
+                      maxLength={1000}
+                      required
+                    />
+                  </label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-1.5 text-sm font-medium text-ink-primary">
+                      Teammates you’re looking for
+                      <input
+                        className="input input-bordered auth-input w-full"
+                        value={editForm.rolesNeeded}
+                        onChange={(event) => setEditForm({ ...editForm, rolesNeeded: event.target.value })}
+                        placeholder="UI designer, frontend developer"
+                      />
+                    </label>
+                    <label className="grid gap-1.5 text-sm font-medium text-ink-primary">
+                      Skills or tools
+                      <input
+                        className="input input-bordered auth-input w-full"
+                        value={editForm.skills}
+                        onChange={(event) => setEditForm({ ...editForm, skills: event.target.value })}
+                        placeholder="React, Figma, research"
+                      />
+                    </label>
+                  </div>
+                  <label className="grid gap-1.5 text-sm font-medium text-ink-primary sm:max-w-xs">
+                    Current stage
+                    <select
+                      className="select select-bordered auth-input w-full"
+                      value={editForm.status}
+                      onChange={(event) => setEditForm({ ...editForm, status: event.target.value })}
+                    >
+                      <option value="idea">Idea</option>
+                      <option value="building">Building</option>
+                      <option value="launched">Launched</option>
+                    </select>
+                  </label>
+                  {updateProject.isError && (
+                    <p role="alert" className="text-sm text-red-600">
+                      {updateProject.error.response?.data?.message || "Could not update this project."}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <button type="submit" className="btn btn-primary btn-sm" disabled={updateProject.isPending}>
+                      {updateProject.isPending ? "Saving..." : "Save changes"}
+                    </button>
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingProjectId("")}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <p className="whitespace-pre-wrap text-sm leading-6 text-ink-secondary">
+                  {project.description}
+                </p>
+              )}
 
-              {project.rolesNeeded?.length > 0 && (
+              {editingProjectId !== project._id && project.rolesNeeded?.length > 0 && (
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-secondary">
                     Looking for
@@ -296,7 +437,7 @@ export default function BuildWithMePage() {
                 </div>
               )}
 
-              {project.skills?.length > 0 && (
+              {editingProjectId !== project._id && project.skills?.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {project.skills.map((skill) => (
                     <span key={skill} className="badge badge-ghost">{skill}</span>
