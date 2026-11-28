@@ -10,6 +10,12 @@ function safeExternalUrl(value) {
   }
 }
 
+function normalizeExternalUrl(value) {
+  const trimmed = value.trim();
+  if (!trimmed || /^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
 export default function ProjectsSection({ projects, canEdit, onSave }) {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState("");
@@ -27,8 +33,8 @@ export default function ProjectsSection({ projects, canEdit, onSave }) {
       title: title.trim(),
       description: description.trim(),
       technologies: technologies.split(",").map((item) => item.trim()).filter(Boolean),
-      projectUrl: projectUrl.trim(),
-      repositoryUrl: repositoryUrl.trim(),
+      projectUrl: normalizeExternalUrl(projectUrl),
+      repositoryUrl: normalizeExternalUrl(repositoryUrl),
     };
 
     try {
@@ -160,14 +166,16 @@ export default function ProjectsSection({ projects, canEdit, onSave }) {
               type="url"
               value={projectUrl}
               onChange={(event) => setProjectUrl(event.target.value)}
-              placeholder="Live project URL"
+              onBlur={() => setProjectUrl((value) => normalizeExternalUrl(value))}
+              placeholder="https://your-project.com"
             />
             <input
               className="input input-bordered auth-input w-full"
               type="url"
               value={repositoryUrl}
               onChange={(event) => setRepositoryUrl(event.target.value)}
-              placeholder="Source code URL"
+              onBlur={() => setRepositoryUrl((value) => normalizeExternalUrl(value))}
+              placeholder="https://github.com/username/repository"
             />
           </div>
           <div className="flex flex-wrap gap-2">
