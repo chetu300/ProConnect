@@ -21,20 +21,28 @@ export async function updateProfile(req, res) {
       }
     }
 
-    if (req.body.profileImage) {
-      const upload = await uploadBase64(
-        req.body.profileImage,
-        "profiles"
-      );
-      updates.profileImage = upload.secure_url;
+    if (typeof req.body.profileImage === "string") {
+      if (req.body.profileImage) {
+        const upload = await uploadBase64(
+          req.body.profileImage,
+          "profiles"
+        );
+        updates.profileImage = upload.secure_url;
+      } else {
+        updates.profileImage = "";
+      }
     }
 
-    if (req.body.bannerImage) {
-      const upload = await uploadBase64(
-        req.body.bannerImage,
-        "banners"
-      );
-      updates.bannerImage = upload.secure_url;
+    if (typeof req.body.bannerImage === "string") {
+      if (req.body.bannerImage) {
+        const upload = await uploadBase64(
+          req.body.bannerImage,
+          "banners"
+        );
+        updates.bannerImage = upload.secure_url;
+      } else {
+        updates.bannerImage = "";
+      }
     }
 
     const user = await User.findByIdAndUpdate(
