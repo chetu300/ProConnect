@@ -25,7 +25,7 @@ export default function ExperienceSection({ experience, canEdit, onSave }) {
   }
 
   return (
-    <section className="card gap-3 p-5">
+    <section className="card min-w-0 gap-3 p-4 sm:p-5">
       <h2 className="text-lg font-bold text-ink-primary">Experience</h2>
       {experience.map((item, index) => (
         <article

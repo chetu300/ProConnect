@@ -42,7 +42,7 @@ export default function ProfilePage() {
   const saveChanges = (updates) => updateProfile.mutateAsync(updates);
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-3 sm:space-y-4">
       {updateProfile.isError && (
         <p className="text-sm text-red-600">
           Could not save your profile.

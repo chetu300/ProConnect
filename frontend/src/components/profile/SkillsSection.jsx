@@ -14,7 +14,7 @@ export default function SkillsSection({ skills, canEdit, onSave }) {
   }
 
   return (
-    <section className="card gap-3 p-5">
+    <section className="card min-w-0 gap-3 p-4 sm:p-5">
       <h2 className="text-lg font-bold text-ink-primary">Skills</h2>
       {canEdit ? (
         <form onSubmit={saveSkills} className="flex flex-col gap-3">
@@ -27,9 +27,12 @@ export default function SkillsSection({ skills, canEdit, onSave }) {
           <button className="btn btn-primary btn-sm self-start">Save skills</button>
         </form>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex min-w-0 flex-wrap items-start gap-2">
           {skills.map((skill) => (
-            <span className="badge badge-outline p-3" key={skill}>
+            <span
+              className="max-w-full whitespace-normal break-words rounded-full bg-surface-bg px-3 py-2 text-center text-sm leading-5 text-ink-primary"
+              key={skill}
+            >
               {skill}
             </span>
           ))}

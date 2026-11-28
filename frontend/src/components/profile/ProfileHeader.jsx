@@ -12,7 +12,7 @@ export default function ProfileHeader({ user, canEdit, onSave }) {
 
   return (
     <section className="card overflow-hidden">
-      <div className="h-36 bg-gradient-to-r from-slate-200 via-slate-100 to-indigo-50">
+      <div className="h-28 bg-gradient-to-r from-slate-200 via-slate-100 to-indigo-50 sm:h-36">
         {user.bannerImage && (
           <img
             src={user.bannerImage}
@@ -21,21 +21,23 @@ export default function ProfileHeader({ user, canEdit, onSave }) {
           />
         )}
       </div>
-      <div className="p-5">
-        <div className="-mt-14 flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0 p-4 sm:p-5">
+        <div className="-mt-12 flex flex-wrap items-end justify-between gap-3 sm:-mt-14 sm:gap-4">
           {user.profileImage ? (
             <img
               src={user.profileImage}
               alt=""
               className="
-                relative z-10 h-24 w-24 rounded-full border-4 border-white
+                relative z-10 h-20 w-20 rounded-full border-4 border-white
+                sm:h-24 sm:w-24
                 bg-surface-bg object-cover shadow-sm
               "
             />
           ) : (
             <div
               className="
-                relative z-10 flex h-24 w-24 items-center justify-center
+                relative z-10 flex h-20 w-20 items-center justify-center
+                sm:h-24 sm:w-24
                 rounded-full border-4 border-white bg-indigo-50 shadow-sm
                 text-3xl font-bold text-brand-indigo
               "
