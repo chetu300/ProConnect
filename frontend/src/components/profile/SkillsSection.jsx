@@ -27,10 +27,10 @@ export default function SkillsSection({ skills, canEdit, onSave }) {
           <button className="btn btn-primary btn-sm self-start">Save skills</button>
         </form>
       ) : (
-        <div className="flex min-w-0 flex-wrap items-start gap-2">
+        <div className="flex w-full min-w-0 flex-row flex-wrap items-start justify-start gap-2 text-left">
           {skills.map((skill) => (
             <span
-              className="max-w-full whitespace-normal break-words rounded-full bg-surface-bg px-3 py-2 text-center text-sm leading-5 text-ink-primary"
+              className="block max-w-full whitespace-normal break-words rounded-full bg-surface-bg px-3 py-2 text-left text-sm leading-5 text-ink-primary"
               key={skill}
             >
               {skill}
